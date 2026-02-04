@@ -11,7 +11,7 @@ public class MainWindow extends JPanel {
     private final int WINDOW_WIDTH = 1920;
     private final int WINDOW_HEIGHT = 1080;
 
-    private final int NUM_PARTICLES = 100;
+    private final int NUM_PARTICLES = 1000;
     //Particle p;
 
     ArrayList<Particle> particles;
@@ -37,7 +37,7 @@ public class MainWindow extends JPanel {
 
         }
         //runs every 16 milliseconds (1000/16 ~ 60fps)
-        Timer timer = new Timer(16, new ActionListener() {
+        Timer timer = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 update();
@@ -77,6 +77,7 @@ public class MainWindow extends JPanel {
        for( Particle pTemp : particles){
            pTemp.updateParticleAngular();
            pTemp.updateParticleLinear();
+           pTemp.updateParticleSize();
        }
     }
 }

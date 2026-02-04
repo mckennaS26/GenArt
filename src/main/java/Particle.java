@@ -30,8 +30,18 @@ public class Particle {
         width = windowWidth;
         height = windowHeight;
 
-        centerX = windowWidth / 2;
-        centerY = windowHeight / 2;
+        centerX = randInt(0, windowWidth);
+        centerY = randInt(0, windowHeight);
+        angle = randInt(0, 50);
+        angularspeed = randDouble(0.01, 0.5);
+        orbitRadius = randInt(10, 40);
+    }
+    public int randInt(int min, int max) {
+        return (int) (min + Math.random() * (max -min));
+    }
+
+    public double randDouble(double min, double max) {
+        return min + Math.random() * (max - min);
     }
 
     public void draw(Graphics2D g){
@@ -56,5 +66,9 @@ public class Particle {
         x += xSpeed * xDirection;
         y += ySpeed * yDirection;
 
+    }
+
+    public void updateParticleSize(){
+        radius = randInt(5,25);
     }
 }

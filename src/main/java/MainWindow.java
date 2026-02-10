@@ -17,6 +17,8 @@ public class MainWindow extends JPanel {
     private final int SPAWN_TIMER = 1000;
     private final int SPAWN_COUNT = 2;
     private final int MAX_PARTICLES = 200;
+
+    private final int DEATH_TIMER = 2000;
     //Particle p;
 
     ArrayList<Particle> particles;
@@ -113,6 +115,31 @@ public class MainWindow extends JPanel {
            }
        }
        particles.addAll(particlesToAdd);
+
+       for(int i = particles.size() -1; i >= 0; i--) {
+           Particle p = particles.get(i);
+           if(p.shouldDie(now, DEATH_TIMER)){
+               particles.remove(p);
+           }
+       }
+
+       if(particles.size() > MAX_PARTICLES || particles.isEmpty()) {
+           particles.clear();
+           for(int i = 0; i < NUM_PARTICLES; i++){
+               // min + Maht.random() * (max - min)
+               int x = randInt(0, WINDOW_WIDTH);
+               int y = randInt(0, WINDOW_HEIGHT);
+               int radius = randInt(5, 15);
+               int red = randInt(0, 255);
+               int green = randInt(0, 255);
+               int blue = randInt(0, 255);
+
+               // create a local radius variable, and assign a value btwn 5-15
+               //create RBG values btwn 0-255 to assing a random Color to new Color
+               particles.add(new Particle(x, y, radius, new Color(red, green, blue), WINDOW_WIDTH, WINDOW_HEIGHT, SPAWN_TIMER));
+
+           }
+       }
     }
 
     private boolean isTouching(Particle a, Particle b) {

@@ -112,4 +112,8 @@ public class Particle {
     public void setSpawnCooldown(double nowMilli, double cooldownMilli) {
         nextSpawnAllowedMilli = nowMilli + cooldownMilli;
     }
+
+    public boolean shouldDie(double nowMilli, double idleDeathMilli) {
+        return nowMilli - timeSinceTouchedMilli > idleDeathMilli;
+    }
 }

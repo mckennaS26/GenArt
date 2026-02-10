@@ -14,8 +14,12 @@ public class Particle {
     private int centerX;
     private int centerY;
 
+    //life cycle variables
+    private double timeSinceTouchedMilli; // last time a particle touched another
+    private double nextSpawnAllowedMilli; // cooldown to prevent infinite spawning
+
     //initial setup of the particle
-    public Particle(int x, int y, int radius, Color color, int windowWidth, int windowHeight){
+    public Particle(int x, int y, int radius, Color color, int windowWidth, int windowHeight, double spawTimer){
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -24,8 +28,8 @@ public class Particle {
         xDirection = 1;
         yDirection = 1;
 
-        xSpeed = (int)(2 + Math.random() * (5 - 2));
-        ySpeed = (int)(2 + Math.random() * (5 - 2));
+        xSpeed = (int)(4 + Math.random() * (4 - 3));
+        ySpeed = (int)(4 + Math.random() * (4 - 3));
 
         width = windowWidth;
         height = windowHeight;
@@ -35,6 +39,9 @@ public class Particle {
         angle = randInt(0, 50);
         angularspeed = randDouble(0.01, 0.5);
         orbitRadius = randInt(10, 40);
+
+        timeSinceTouchedMilli = System.currentTimeMillis();
+        nextSpawnAllowedMilli = System.currentTimeMillis() * spawTimer;
     }
     public int randInt(int min, int max) {
         return (int) (min + Math.random() * (max -min));
@@ -56,19 +63,53 @@ public class Particle {
     }
 
    public void updateParticleLinear(){
-       if(Math.random() >= .97 || x + (radius*2) > width){
+       if(x <= 0 || x + (radius*2) > width){
             xDirection *= -1;
+            if( x < 0) {
+                x  = 0;
+            }else if(x+(radius*2) > width) {
+                x = width - (radius *2);
+            }
         }
-        if(Math.random() >= .98 || y + (radius*2) > height){
+        if(y <= 0 ||y + (radius*2) > height){
             yDirection *= -1;
+            if(y < 0) {
+                y = 0;
+            }else if (y+(radius*2) < height) {
+                y = height - (radius*2);
+            }
         }
 
         x += xSpeed * xDirection;
         y += ySpeed * yDirection;
-
     }
 
     public void updateParticleSize(){
         radius = randInt(5,25);
+    }
+
+    //helpers to spawn particles
+    public int getRadius() {
+        return radius;
+    }
+
+    public int getCenterX() {
+        return radius + x;
+    }
+
+    public int getCenterY() {
+        return radius + y;
+    }
+
+    public void touched(double nowMilli) {
+        timeSinceTouchedMilli = nowMilli;
+    }
+
+    public boolean canSpawn(double nowMilli) {
+        return nowMilli >= nextSpawnAllowedMilli;
+    }
+
+    public void setSpawnCooldown(double nowMilli, double cooldownMilli) {
+        nextSpawnAllowedMilli = nowMilli + cooldownMilli;
     }
 }

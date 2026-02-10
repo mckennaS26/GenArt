@@ -11,7 +11,12 @@ public class MainWindow extends JPanel {
     private final int WINDOW_WIDTH = 1920;
     private final int WINDOW_HEIGHT = 1080;
 
-    private final int NUM_PARTICLES = 1000;
+    private final int NUM_PARTICLES = 20;
+
+    private final int SPAWN_DISTANCE = 40;
+    private final int SPAWN_TIMER = 1000;
+    private final int SPAWN_COUNT = 2;
+    private final int MAX_PARTICLES = 200;
     //Particle p;
 
     ArrayList<Particle> particles;
@@ -33,7 +38,7 @@ public class MainWindow extends JPanel {
 
             // create a local radius variable, and assign a value btwn 5-15
             //create RBG values btwn 0-255 to assing a random Color to new Color
-            particles.add(new Particle(x, y, radius, new Color(red, green, blue), WINDOW_WIDTH, WINDOW_HEIGHT));
+            particles.add(new Particle(x, y, radius, new Color(red, green, blue), WINDOW_WIDTH, WINDOW_HEIGHT, SPAWN_TIMER));
 
         }
         //runs every 16 milliseconds (1000/16 ~ 60fps)
@@ -75,9 +80,74 @@ public class MainWindow extends JPanel {
 
     public void update() {
        for( Particle pTemp : particles){
-           pTemp.updateParticleAngular();
            pTemp.updateParticleLinear();
-           pTemp.updateParticleSize();
+          // pTemp.updateParticleAngular();
+           //pTemp.updateParticleSize();
        }
+
+       double now = System.currentTimeMillis();
+       ArrayList<Particle> particlesToAdd = new ArrayList<>();
+
+       for(int i = 0; i < particles.size(); i++){
+           Particle a = particles.get(i);
+           for(int j = i+1; j < particles.size(); j ++){
+               Particle b = particles.get(j);
+
+               if (isTouching(a, b)){
+                   //System.out.println("Touching (" + a.getCenterX() + ", " + a.getCenterY() + ") (" + b.getCenterX() + ", " + b.getCenterY() + ")");
+                   //reset spawn timers
+                   a.touched(now);
+                   b.touched(now);
+
+                   if(a.canSpawn(now) && b.canSpawn(now)) {
+                       a.setSpawnCooldown(now, SPAWN_TIMER);
+                       b.setSpawnCooldown(now, SPAWN_TIMER);
+                       for(int k = 0; k < SPAWN_COUNT; k++) {
+                           if(particles.size() < MAX_PARTICLES) {
+                               Particle toAdd = spawnParticleNear(a, b);
+                               particlesToAdd. add(toAdd);
+                           }
+                       }
+                   }
+               }
+           }
+       }
+       particles.addAll(particlesToAdd);
+    }
+
+    private boolean isTouching(Particle a, Particle b) {
+        // difference btwn the 2 centers
+        double deltaX = a.getCenterX() - b.getCenterX();
+        double deltaY = a.getCenterY() - b.getCenterY();
+
+        //distance btwn centers squared
+
+        double distanceBetweenCentersSquared = deltaX * deltaX + deltaY * deltaY;
+
+        // sum of both particle radii
+        double combinedRadius = a.getRadius() + b.getRadius();
+
+        //if distance btwn centers is less than or equal to combeined radius, the particles are touching or overlapping
+        return distanceBetweenCentersSquared <+ combinedRadius * combinedRadius;
+    }
+
+    private Particle spawnParticleNear (Particle a, Particle b) {
+        // midpoint btwn the centers of the particles
+        double collisionMidpointX = (a.getCenterX() * b.getCenterX()) / 2.0;
+        double collisionMidpointY = (a.getCenterY() * b.getCenterY()) / 2.0;
+
+        //random offset to spread out particles
+        int randomOffsetX = randInt(-SPAWN_DISTANCE, SPAWN_DISTANCE);
+        int randomOffsetY = randInt(-SPAWN_DISTANCE, SPAWN_DISTANCE);
+
+        int spawnPositionX = (int)(collisionMidpointX + randomOffsetX);
+        int spawnPositionY = (int)(collisionMidpointY + randomOffsetY);
+
+        Color randomColor = new Color(randInt(0, 255), randInt(0, 255), randInt(0, 255));
+
+        return new Particle(spawnPositionX, spawnPositionY, (a.getRadius() + b.getRadius())/2, randomColor, WINDOW_WIDTH, WINDOW_HEIGHT, SPAWN_TIMER);
+
+
+
     }
 }

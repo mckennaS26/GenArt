@@ -8,15 +8,15 @@ public class MainWindow extends JPanel {
     //1 initial setup of window
     //1 Panel is the Canvas where we will draw the Art
     // extend makes the MainWindow object a drawable object
-    private final int WINDOW_WIDTH = 1920;
-    private final int WINDOW_HEIGHT = 1080;
+    private final int WINDOW_WIDTH = 2560;
+    private final int WINDOW_HEIGHT = 1440;
 
-    private final int NUM_PARTICLES = 20;
+    private final int NUM_PARTICLES = 10;
 
     private final int SPAWN_DISTANCE = 40;
     private final int SPAWN_TIMER = 1000;
-    private final int SPAWN_COUNT = 2;
-    private final int MAX_PARTICLES = 200;
+    private final int SPAWN_COUNT = 3;
+    private final int MAX_PARTICLES = 5000;
 
     private final int DEATH_TIMER = 2000;
     //Particle p;
@@ -29,7 +29,7 @@ public class MainWindow extends JPanel {
 
         particles = new ArrayList<>();
 
-        for(int i = 0; i < NUM_PARTICLES; i++){
+        for(int i = 0; i < NUM_PARTICLES; i++) {
             // min + Maht.random() * (max - min)
             int x = randInt(0, WINDOW_WIDTH);
             int y = randInt(0, WINDOW_HEIGHT);
@@ -44,7 +44,7 @@ public class MainWindow extends JPanel {
 
         }
         //runs every 16 milliseconds (1000/16 ~ 60fps)
-        Timer timer = new Timer(50, new ActionListener() {
+        Timer timer = new Timer(16, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 update();
@@ -58,9 +58,10 @@ public class MainWindow extends JPanel {
     public int  randInt(int min, int max) {
         return (int)(min + Math.random() * (max - min));
     }
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         // frame is the window (bar, close button, resizing)
-        JFrame frame = new JFrame ("Title Here");
+        JFrame frame = new JFrame ("Mckenna Straup");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // actually quit the program when the window closes
 
         // initial setup of the window
@@ -72,7 +73,7 @@ public class MainWindow extends JPanel {
 
     }
 
-    protected void paintComponent(Graphics g){
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         for(Particle pTemp : particles) {
@@ -82,7 +83,7 @@ public class MainWindow extends JPanel {
 
     public void update() {
        for( Particle pTemp : particles){
-           pTemp.updateParticleLinear();
+           pTemp.linearMotion();
           // pTemp.updateParticleAngular();
            //pTemp.updateParticleSize();
        }
@@ -90,12 +91,12 @@ public class MainWindow extends JPanel {
        double now = System.currentTimeMillis();
        ArrayList<Particle> particlesToAdd = new ArrayList<>();
 
-       for(int i = 0; i < particles.size(); i++){
+       for(int i = 0; i < particles.size(); i++) {
            Particle a = particles.get(i);
-           for(int j = i+1; j < particles.size(); j ++){
+           for(int j = i+1; j < particles.size(); j++) {
                Particle b = particles.get(j);
 
-               if (isTouching(a, b)){
+               if (isTouching(a, b)) {
                    //System.out.println("Touching (" + a.getCenterX() + ", " + a.getCenterY() + ") (" + b.getCenterX() + ", " + b.getCenterY() + ")");
                    //reset spawn timers
                    a.touched(now);
@@ -116,16 +117,16 @@ public class MainWindow extends JPanel {
        }
        particles.addAll(particlesToAdd);
 
-       for(int i = particles.size() -1; i >= 0; i--) {
+       for(int i = particles.size() - 1; i >= 0; i--) {
            Particle p = particles.get(i);
-           if(p.shouldDie(now, DEATH_TIMER)){
+           if(p.shouldDie(now, DEATH_TIMER)) {
                particles.remove(p);
            }
        }
 
        if(particles.size() > MAX_PARTICLES || particles.isEmpty()) {
            particles.clear();
-           for(int i = 0; i < NUM_PARTICLES; i++){
+           for(int i = 0; i < NUM_PARTICLES; i++) {
                // min + Maht.random() * (max - min)
                int x = randInt(0, WINDOW_WIDTH);
                int y = randInt(0, WINDOW_HEIGHT);
